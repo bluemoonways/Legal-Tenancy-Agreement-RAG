@@ -1,0 +1,314 @@
+{
+  "name": "Legal Tenancy Agrement (Rag)",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Legal Tenancy Agrement Project",
+        "formDescription": "Upload your tenancy agreement and ask any questions about your lease.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Upload Document",
+              "fieldType": "file"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        -560,
+        256
+      ],
+      "id": "8d6eb792-55a3-43be-a17b-cc87dad71658",
+      "name": "On form submission"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "Upload_Document",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -288,
+        256
+      ],
+      "id": "e1f76948-bd69-4636-937c-c5881ad749d4",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "YOUR_PINECONE_INDEX",
+          "mode": "list"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        -400,
+        496
+      ],
+      "id": "8a2ef9ff-9dcc-4051-b2be-9ef7c0219895",
+      "name": "Pinecone Vector Store"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        672
+      ],
+      "id": "a0837d6b-58d4-4fe5-ae2f-a60c28c625ad",
+      "name": "Embeddings Google Gemini"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        -80,
+        672
+      ],
+      "id": "80ea340d-18b0-495b-a37f-bc6b3b2535a6",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.messages[0].text.body }}",
+        "options": {
+          "systemMessage": "You are a Legal Tenancy Agreement Assistant.\n\nAlways use the Pinecone knowledge base to answer questions.\n\nAnswer ONLY from the retrieved tenancy agreement.\n\nIf the information is not available in the document, reply:\n\n\"I couldn't find this information in the uploaded tenancy agreement.\"\n\nMention the relevant clause number whenever possible.\n\nDo not make up legal information."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        400,
+        304
+      ],
+      "id": "270fc7fe-7cd6-4600-8628-b6ba2e5a7344",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        544
+      ],
+      "id": "c24cd60b-1245-449a-ab4e-92962cf5994d",
+      "name": "Google Gemini Chat Model"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Search the Legal Tenancy Agreement knowledge base in Pinecone and return the most relevant clauses related to the user's question.",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "YOUR_PINECONE_INDEX",
+          "mode": "list"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        784,
+        512
+      ],
+      "id": "7c7d044b-f596-4156-9369-54077d7dd693",
+      "name": "Pinecone Vector Store1"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        880,
+        800
+      ],
+      "id": "3aec9f7d-df55-4675-8629-85c209b52e1e",
+      "name": "Embeddings Google Gemini1"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $execution.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        480,
+        560
+      ],
+      "id": "c7d9e7eb-d9c4-42af-889c-406c5cdf9cbb",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        64,
+        288
+      ],
+      "id": "488d2d60-f0c3-43e1-9b45-5e14c40d96fa",
+      "name": "WhatsApp Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "YOUR_WHATSAPP_PHONE_NUMBER_ID",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        880,
+        288
+      ],
+      "id": "40926626-1561-4092-b174-27a7aafc8905",
+      "name": "Send message"
+    }
+  ],
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "nodeGroups": [],
+  "tags": []
+}
