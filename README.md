@@ -103,7 +103,8 @@ A sanitized n8n workflow file is included for portfolio demonstration.
 
 👉 [View / Download Workflow JSON](Legal_Tenancy_Agreement_RAG.json)
 
-For custom implementation or commercial use, please **Contact Us**:
+For custom implementation or commercial use, please <strong>Contact Us:</strong>
+
 <a href="https://wa.me/923002120566">
   <img src="https://cdn.simpleicons.org/whatsapp/25D366" width="28" alt="WhatsApp">
 </a>
