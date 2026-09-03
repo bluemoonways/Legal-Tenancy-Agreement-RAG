@@ -45,6 +45,14 @@ The assistant is designed to answer only from the uploaded tenancy agreement and
 
 10. **WhatsApp Response**
     - The answer is automatically sent back to the user through WhatsApp.
+    - 
+## 📄 Sample Knowledge Base Document
+
+This project includes a sample tenancy agreement used as the source document for the RAG pipeline.
+
+The document is processed, converted into embeddings, and stored in Pinecone so the AI Agent can retrieve relevant clauses when answering user questions.
+
+👉 [View / Download Sample Tenancy Agreement](sample-data/Legal_Tenancy_Agreement.pdf)
 
 ## 🎯 Key Features
 
