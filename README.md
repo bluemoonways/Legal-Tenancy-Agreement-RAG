@@ -10,7 +10,7 @@ The system processes the uploaded agreement, converts it into searchable knowled
 
 The assistant is designed to answer only from the uploaded tenancy agreement and avoid generating unsupported legal information.
 
-## ⚙️ Workflow
+## ⚙️ Workflow chart
 
 ![Legal Tenancy Agreement RAG Workflow](screenshots/Legal-Tenancy-Agreement-RAG-flowchart.png)
 
